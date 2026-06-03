@@ -1,34 +1,152 @@
 import { useState } from "react";
-import api from "../../services/api.js";
+import { useNavigate } from "react-router-dom";
+import API from "../../services/api";
 
-const CreateGig = () => {
-  const [form, setForm] = useState({ title: "", description: "", category: "", skillsRequired: "", location: "", budgetMin: 0, budgetMax: 0 });
+function CreateGig() {
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    category: "",
+    skillsRequired: "",
+    location: "",
+    budgetMin: "",
+    budgetMax: "",
+    deadline: "",
+  });
+
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const submit = async (e) => {
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const payload = { ...form, skillsRequired: form.skillsRequired.split(",").map((s) => s.trim()).filter(Boolean) };
-    await api.post("/gigs", payload);
-    setMessage("Gig created successfully.");
-    setForm({ title: "", description: "", category: "", skillsRequired: "", location: "", budgetMin: 0, budgetMax: 0 });
+    setMessage("");
+    setError("");
+    setLoading(true);
+
+    try {
+      await API.post("/gigs", {
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        skillsRequired: formData.skillsRequired,
+        location: formData.location,
+        budgetMin: formData.budgetMin,
+        budgetMax: formData.budgetMax,
+        deadline: formData.deadline,
+      });
+
+      setMessage("Gig posted successfully.");
+
+      setFormData({
+        title: "",
+        description: "",
+        category: "",
+        skillsRequired: "",
+        location: "",
+        budgetMin: "",
+        budgetMax: "",
+        deadline: "",
+      });
+
+      setTimeout(() => {
+        navigate("/client/my-gigs");
+      }, 800);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to post gig");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <form className="form wide" onSubmit={submit}>
-      <h2>Create Gig</h2>
-      {message && <p className="success">{message}</p>}
-      <input placeholder="Title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
-      <textarea placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-      <input placeholder="Category" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} />
-      <input placeholder="Skills required, comma separated" value={form.skillsRequired} onChange={(e) => setForm({ ...form, skillsRequired: e.target.value })} />
-      <input placeholder="Location" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
-      <div className="row">
-        <input type="number" placeholder="Budget Min" value={form.budgetMin} onChange={(e) => setForm({ ...form, budgetMin: Number(e.target.value) })} />
-        <input type="number" placeholder="Budget Max" value={form.budgetMax} onChange={(e) => setForm({ ...form, budgetMax: Number(e.target.value) })} />
-      </div>
-      <button>Post Gig</button>
-    </form>
+    <div className="container">
+      <form className="form wide" onSubmit={handleSubmit}>
+        <h2>Post a New Gig</h2>
+
+        {message && <p className="success">{message}</p>}
+        {error && <p className="error">{error}</p>}
+
+        <input
+          type="text"
+          name="title"
+          placeholder="Title"
+          value={formData.title}
+          onChange={handleChange}
+          required
+        />
+
+        <textarea
+          name="description"
+          placeholder="Description"
+          value={formData.description}
+          onChange={handleChange}
+          required
+        />
+
+        <input
+          type="text"
+          name="category"
+          placeholder="Category"
+          value={formData.category}
+          onChange={handleChange}
+        />
+
+        <input
+          type="text"
+          name="skillsRequired"
+          placeholder="Skills required, comma separated"
+          value={formData.skillsRequired}
+          onChange={handleChange}
+        />
+
+        <input
+          type="text"
+          name="location"
+          placeholder="Location"
+          value={formData.location}
+          onChange={handleChange}
+        />
+
+        <input
+          type="number"
+          name="budgetMin"
+          placeholder="Minimum Amount"
+          value={formData.budgetMin}
+          onChange={handleChange}
+        />
+
+        <input
+          type="number"
+          name="budgetMax"
+          placeholder="Maximum Amount"
+          value={formData.budgetMax}
+          onChange={handleChange}
+        />
+
+        <label>Expire Date / Deadline</label>
+        <input
+          type="date"
+          name="deadline"
+          value={formData.deadline}
+          onChange={handleChange}
+        />
+
+        <button type="submit" disabled={loading}>
+          {loading ? "Posting..." : "Post Gig"}
+        </button>
+      </form>
+    </div>
   );
-};
+}
 
 export default CreateGig;

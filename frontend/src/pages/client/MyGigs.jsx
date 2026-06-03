@@ -1,25 +1,52 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import api from "../../services/api.js";
-import GigCard from "../../components/GigCard.jsx";
+import API from "../../services/api";
+import GigCard from "../../components/GigCard";
 
-const MyGigs = () => {
+function MyGigs() {
   const [gigs, setGigs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const fetchMyGigs = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const res = await API.get("/gigs/my-gigs");
+
+      setGigs(res.data || []);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to load your gigs");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    api.get("/gigs/my").then((res) => setGigs(res.data)).catch(console.error);
+    fetchMyGigs();
   }, []);
 
   return (
-    <section>
+    <div className="container">
       <h2>My Gigs</h2>
+
+      {loading && <p>Loading your gigs...</p>}
+
+      {error && <p className="error">{error}</p>}
+
+      {!loading && !error && gigs.length === 0 && (
+        <div className="card">
+          <p>No gigs found. Create a new gig first.</p>
+        </div>
+      )}
+
       <div className="grid">
         {gigs.map((gig) => (
-          <GigCard key={gig._id} gig={gig} action={<Link className="btn small" to={`/client/gigs/${gig._id}/proposals`}>View Proposals</Link>} />
+          <GigCard key={gig._id} gig={gig} />
         ))}
       </div>
-    </section>
+    </div>
   );
-};
+}
 
 export default MyGigs;

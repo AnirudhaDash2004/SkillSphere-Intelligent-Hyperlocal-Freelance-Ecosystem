@@ -1,13 +1,21 @@
 import axios from "axios";
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api"
+const API = axios.create({
+  baseURL: "http://localhost:5000/api",
 });
 
-api.interceptors.request.use((config) => {
-  const user = JSON.parse(localStorage.getItem("skillsphereUser") || "null");
-  if (user?.token) config.headers.Authorization = `Bearer ${user.token}`;
-  return config;
+API.interceptors.request.use((req) => {
+  const user = localStorage.getItem("user");
+
+  if (user) {
+    const parsedUser = JSON.parse(user);
+
+    if (parsedUser.token) {
+      req.headers.Authorization = `Bearer ${parsedUser.token}`;
+    }
+  }
+
+  return req;
 });
 
-export default api;
+export default API;

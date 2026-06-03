@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api.js";
 import GigCard from "../../components/GigCard.jsx";
-
 const BrowseGigs = () => {
   const [gigs, setGigs] = useState([]);
   const [search, setSearch] = useState("");
-
   const load = () => api.get(`/gigs?search=${encodeURIComponent(search)}`).then((res) => setGigs(res.data));
   useEffect(() => { load().catch(console.error); }, []);
-
   return (
     <section>
       <h2>Browse Gig Marketplace</h2>
@@ -22,5 +19,4 @@ const BrowseGigs = () => {
     </section>
   );
 };
-
 export default BrowseGigs;

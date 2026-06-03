@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../services/api";
-
 function CreateGig() {
   const navigate = useNavigate();
-
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -15,24 +13,20 @@ function CreateGig() {
     budgetMax: "",
     deadline: "",
   });
-
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
     setError("");
     setLoading(true);
-
     try {
       await API.post("/gigs", {
         title: formData.title,
@@ -44,9 +38,7 @@ function CreateGig() {
         budgetMax: formData.budgetMax,
         deadline: formData.deadline,
       });
-
       setMessage("Gig posted successfully.");
-
       setFormData({
         title: "",
         description: "",
@@ -57,7 +49,6 @@ function CreateGig() {
         budgetMax: "",
         deadline: "",
       });
-
       setTimeout(() => {
         navigate("/client/my-gigs");
       }, 800);
@@ -67,15 +58,12 @@ function CreateGig() {
       setLoading(false);
     }
   };
-
   return (
     <div className="container">
       <form className="form wide" onSubmit={handleSubmit}>
         <h2>Post a New Gig</h2>
-
         {message && <p className="success">{message}</p>}
         {error && <p className="error">{error}</p>}
-
         <input
           type="text"
           name="title"
@@ -84,7 +72,6 @@ function CreateGig() {
           onChange={handleChange}
           required
         />
-
         <textarea
           name="description"
           placeholder="Description"
@@ -92,7 +79,6 @@ function CreateGig() {
           onChange={handleChange}
           required
         />
-
         <input
           type="text"
           name="category"
@@ -100,7 +86,6 @@ function CreateGig() {
           value={formData.category}
           onChange={handleChange}
         />
-
         <input
           type="text"
           name="skillsRequired"
@@ -108,7 +93,6 @@ function CreateGig() {
           value={formData.skillsRequired}
           onChange={handleChange}
         />
-
         <input
           type="text"
           name="location"
@@ -116,7 +100,6 @@ function CreateGig() {
           value={formData.location}
           onChange={handleChange}
         />
-
         <input
           type="number"
           name="budgetMin"
@@ -124,7 +107,6 @@ function CreateGig() {
           value={formData.budgetMin}
           onChange={handleChange}
         />
-
         <input
           type="number"
           name="budgetMax"
@@ -132,7 +114,6 @@ function CreateGig() {
           value={formData.budgetMax}
           onChange={handleChange}
         />
-
         <label>Expire Date / Deadline</label>
         <input
           type="date"
@@ -140,7 +121,6 @@ function CreateGig() {
           value={formData.deadline}
           onChange={handleChange}
         />
-
         <button type="submit" disabled={loading}>
           {loading ? "Posting..." : "Post Gig"}
         </button>
@@ -148,5 +128,4 @@ function CreateGig() {
     </div>
   );
 }
-
 export default CreateGig;

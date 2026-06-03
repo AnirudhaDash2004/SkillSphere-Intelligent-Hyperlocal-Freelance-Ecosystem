@@ -5,13 +5,11 @@ export const authorizeRoles = (...allowedRoles) => {
         message: "Not authorized. Please login first.",
       });
     }
-
     if (!allowedRoles.includes(req.user.role)) {
       return res.status(403).json({
         message: "Access denied. You do not have permission for this action.",
       });
     }
-
     next();
   };
 };
@@ -23,13 +21,11 @@ export const authorize = (...allowedRoles) => {
         message: "Not authorized. Please login first.",
       });
     }
-
     if (!allowedRoles.includes(req.user.role)) {
       return res.status(403).json({
         message: "Access denied. You do not have permission for this action.",
       });
     }
-
     next();
   };
 };
@@ -40,12 +36,10 @@ export const adminOnly = (req, res, next) => {
       message: "Not authorized. Please login first.",
     });
   }
-
   if (req.user.role !== "admin") {
     return res.status(403).json({
       message: "Admin access only.",
     });
   }
-
   next();
 };

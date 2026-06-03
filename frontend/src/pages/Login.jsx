@@ -5,53 +5,49 @@ import API from "../services/api";
 import { setUser } from "../redux/slices/authSlice";
 
 function Login() {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const navigate=useNavigate();
+  const dispatch=useDispatch();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData]=useState({
     email: "",
     password: "",
   });
 
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [error, setError]=useState("");
+  const [loading, setLoading]=useState(false);
 
-  const handleChange = (e) => {
-    setFormData((prev) => ({
+  const handleChange=(e)=>{
+    setFormData((prev)=>({
       ...prev,
       [e.target.name]: e.target.value,
     }));
   };
 
-  const goToDashboard = (role) => {
-    const cleanRole = role?.toLowerCase();
+  const goToDashboard=(role)=>{
+    const cleanRole=role?.toLowerCase();
 
-    if (cleanRole === "client") {
+    if (cleanRole==="client") {
       navigate("/client/dashboard");
-    } else if (cleanRole === "freelancer") {
+    } else if (cleanRole==="freelancer") {
       navigate("/freelancer/dashboard");
-    } else if (cleanRole === "admin") {
+    } else if (cleanRole==="admin") {
       navigate("/admin/dashboard");
     } else {
       navigate("/");
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit=async (e) => {
     e.preventDefault();
-
     setError("");
     setLoading(true);
-
     try {
-      const res = await API.post("/auth/login", {
+      const res=await API.post("/auth/login", {
         email: formData.email.trim(),
         password: formData.password,
       });
-
-      const data = res.data;
-
-      const userData = {
+      const data=res.data;
+      const userData={
         _id: data._id,
         name: data.name,
         email: data.email,

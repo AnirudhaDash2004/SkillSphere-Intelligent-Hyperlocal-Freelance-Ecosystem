@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
+import { setUser } from "../redux/slices/authSlice";
 
 function Login() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -20,12 +23,14 @@ function Login() {
     }));
   };
 
-  const redirectByRole = (role) => {
-    if (role === "client") {
+  const goToDashboard = (role) => {
+    const cleanRole = role?.toLowerCase();
+
+    if (cleanRole === "client") {
       navigate("/client/dashboard");
-    } else if (role === "freelancer") {
+    } else if (cleanRole === "freelancer") {
       navigate("/freelancer/dashboard");
-    } else if (role === "admin") {
+    } else if (cleanRole === "admin") {
       navigate("/admin/dashboard");
     } else {
       navigate("/");
@@ -34,36 +39,38 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setError("");
     setLoading(true);
 
     try {
       const res = await API.post("/auth/login", {
-        email: formData.email,
+        email: formData.email.trim(),
         password: formData.password,
       });
 
       const data = res.data;
 
       const userData = {
-        _id: data._id || data.user?._id,
-        name: data.name || data.user?.name,
-        email: data.email || data.user?.email,
-        role: data.role || data.user?.role,
+        _id: data._id,
+        name: data.name,
+        email: data.email,
+        role: data.role,
         token: data.token,
       };
 
       if (!userData.token) {
-        setError("Login successful but token was not received.");
+        setError("Login failed because token was not received.");
+        setLoading(false);
         return;
       }
 
-      localStorage.setItem("user", JSON.stringify(userData));
-      redirectByRole(userData.role);
-    } catch (err) {
-      setError(err.response?.data?.message || "Invalid email or password");
-    } finally {
+      dispatch(setUser(userData));
       setLoading(false);
+      goToDashboard(userData.role);
+    } catch (err) {
+      setLoading(false);
+      setError(err.response?.data?.message || "Invalid email or password");
     }
   };
 

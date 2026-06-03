@@ -4,18 +4,21 @@ const API = axios.create({
   baseURL: "http://localhost:5000/api",
 });
 
-API.interceptors.request.use((req) => {
-  const user = localStorage.getItem("user");
+API.interceptors.request.use(
+  (config) => {
+    const user = localStorage.getItem("user");
 
-  if (user) {
-    const parsedUser = JSON.parse(user);
+    if (user) {
+      const parsedUser = JSON.parse(user);
 
-    if (parsedUser.token) {
-      req.headers.Authorization = `Bearer ${parsedUser.token}`;
+      if (parsedUser?.token) {
+        config.headers.Authorization = `Bearer ${parsedUser.token}`;
+      }
     }
-  }
 
-  return req;
-});
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 export default API;
